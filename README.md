@@ -1,105 +1,427 @@
-MarketFaesa — Marketplace Universitário
-Aplicação desktop em Java + JavaFX que funciona como marketplace de serviços acadêmicos entre alunos da FAESA: monitorias, aulas particulares, freelas de programação, design, idiomas e afins. O usuário se registra, faz login e pode publicar, buscar, editar e remover serviços.
+# 🎓 MarketFaesa
 
-Projeto acadêmico do curso de Análise e Desenvolvimento de Sistemas — FAESA Centro Universitário.
+**Marketplace Universitário para alunos da FAESA**
 
-Stack
-Item	Versão / Escolha
-Linguagem	Java (compilação configurada para release 25 no pom.xml)
-Interface	JavaFX 21.0.6 (javafx-controls, javafx-fxml)
-Build	Maven (com Maven Wrapper — mvnw / mvnw.cmd)
-Persistência	Serialização binária Java (.dat), sem SGBD
-Testes	JUnit 5.12.1 declarado no pom.xml (ainda sem testes escritos)
-Modularidade	JPMS via module-info.java
-Estrutura do projeto
-MarketFaesa/
-└── Market Faesa Main/
-    ├── pom.xml
-    ├── mvnw / mvnw.cmd
-    ├── servicos.dat              # gerado em runtime — base de serviços
-    ├── usuarios.dat              # gerado em runtime — base de usuários
-    └── src/main/
-        ├── java/
-        │   ├── module-info.java
-        │   └── com/example/marketfaesamain/
-        │       ├── ServicoApp.java          # entry point (Application) + tela principal
-        │       ├── TelaLogin.java           # login e registro de usuário
-        │       ├── Usuario.java             # modelo de usuário (login/senha)
-        │       ├── Servico.java             # classe ABSTRATA base do serviço
-        │       ├── ServicoDigital.java      # subclasse — atributo "plataforma"
-        │       ├── ServicoPresencial.java   # subclasse — atributo "local"
-        │       ├── BancoDados.java          # persistência em .dat (serviços e usuários)
-        │       ├── TabelaServicos.java      # montagem e estilo da TableView
-        │       ├── FormularioServico.java   # janela modal de cadastro/edição
-        │       └── EstiloUI.java            # paleta de cores e fábrica de componentes
-        └── resources/com/example/marketfaesamain/
-            └── hello-view.fxml              # resíduo do arquétipo do IntelliJ, não utilizado
-Modelagem — herança e polimorfismo
-O núcleo orientado a objetos do projeto está em Servico:
+O **MarketFaesa** é uma aplicação desktop desenvolvida em **Java + JavaFX**, criada como projeto acadêmico do curso de **Análise e Desenvolvimento de Sistemas da FAESA Centro Universitário**.
 
-Servico é abstract e implementa Serializable. Guarda id, titulo, categoria, descricao e valor, e declara dois métodos abstratos:
-getTipo() — devolve "Digital" ou "Presencial";
-getDetalhesExtras() — devolve a informação específica de cada modalidade.
-ServicoDigital implementa esses métodos usando o campo plataforma (ex.: Zoom, Discord).
-ServicoPresencial implementa usando o campo local (ex.: Biblioteca, Bloco B).
-A TableView explora esse polimorfismo diretamente: as colunas Tipo e Info Extra usam PropertyValueFactory<>("tipo") e PropertyValueFactory<>("detalhesExtras"), então cada linha exibe o resultado do método da subclasse correspondente, sem nenhum if na tabela.
+A proposta é funcionar como um marketplace de serviços acadêmicos entre alunos, permitindo a publicação e busca de serviços como:
 
-O id é gerado por um contador static. Como campos static não são serializados, Servico.sincronizarContador() é chamado logo após carregar o .dat e reposiciona o contador no maior id existente + 1, evitando ids duplicados entre execuções.
+* 📚 Monitorias
+* 👨‍🏫 Aulas particulares
+* 💻 Freelas de programação
+* 🎨 Design
+* 🌎 Idiomas
+* 🎵 Música
+* Entre outros serviços acadêmicos
 
-Funcionalidades
-Autenticação (TelaLogin)
+O usuário pode se **registrar, fazer login, publicar, buscar, editar e remover serviços**.
 
-Registro de novo usuário com verificação de login duplicado.
-Login validado contra a lista carregada de usuarios.dat.
-A tela principal só é construída após sucesso — via Runnable de callback passado pelo ServicoApp.
-Serviços
+---
 
-Cadastro com modalidade (Digital/Presencial), título, categoria, descrição, campo extra contextual e valor.
-O rótulo e o placeholder do campo extra mudam sozinhos conforme a modalidade selecionada.
-Categoria por lista fixa (Monitoria, Programação, Design, Idiomas, Música) ou livre: ao escolher "Outro", um campo adicional aparece para digitar a categoria.
-Busca em tempo real por título, categoria ou descrição, usando FilteredList sobre a ObservableList.
-Edição com preenchimento automático do formulário. Se a modalidade for trocada na edição, o objeto é substituído por uma instância da outra subclasse preservando o id original.
-Remoção com diálogo de confirmação.
-Validação: todos os campos obrigatórios e valor numérico (aceita vírgula ou ponto).
-Persistência
+## 🛠️ Tecnologias utilizadas
 
-servicos.dat e usuarios.dat são gravados na pasta de execução após cada cadastro, edição e remoção, e também no fechamento da janela.
-Ambos são criados automaticamente na primeira execução; se não existirem, o carregamento devolve lista vazia.
-Como executar
-Pré-requisitos
-JDK compatível com a configuração do maven-compiler-plugin (hoje source/target = 25).
-Não é necessário baixar o JavaFX SDK: o Maven resolve as dependências do OpenJFX.
-Ajuste obrigatório antes do primeiro run
-O pom.xml ainda aponta para a classe do arquétipo do IntelliJ, que não existe no projeto. Em javafx-maven-plugin, troque:
+| Tecnologia                    | Utilização                                 |
+| ----------------------------- | ------------------------------------------ |
+| **Java**                      | Linguagem principal                        |
+| **JavaFX 21.0.6**             | Interface gráfica                          |
+| **Maven**                     | Gerenciamento e build do projeto           |
+| **Maven Wrapper**             | Execução sem instalação manual do Maven    |
+| **Java Serialization (.dat)** | Persistência dos dados                     |
+| **JUnit 5.12.1**              | Framework de testes                        |
+| **JPMS**                      | Modularidade através do `module-info.java` |
 
-<mainClass>com.example.marketfaesamain/com.example.marketfaesamain.HelloApplication</mainClass>
+> O `pom.xml` está configurado atualmente para compilação com **Java 25**.
+
+---
+
+## 📂 Estrutura principal
+
+A aplicação está organizada separando modelos, interface e persistência.
+
+### Principais classes
+
+**`ServicoApp.java`**
+Ponto de entrada da aplicação (`Application`) e construção da tela principal.
+
+**`TelaLogin.java`**
+Responsável pelo login e cadastro de usuários.
+
+**`Usuario.java`**
+Modelo que representa um usuário do sistema.
+
+**`Servico.java`**
+Classe abstrata base para os serviços cadastrados.
+
+**`ServicoDigital.java`**
+Representa serviços realizados digitalmente e possui o atributo `plataforma`.
+
+**`ServicoPresencial.java`**
+Representa serviços presenciais e possui o atributo `local`.
+
+**`BancoDados.java`**
+Responsável pela persistência de usuários e serviços nos arquivos `.dat`.
+
+**`TabelaServicos.java`**
+Responsável pela construção e estilização da `TableView`.
+
+**`FormularioServico.java`**
+Janela utilizada para cadastro e edição de serviços.
+
+**`EstiloUI.java`**
+Centraliza a paleta de cores e a criação de componentes da interface.
+
+---
+
+## 🧬 Herança e polimorfismo
+
+O projeto utiliza conceitos de **Programação Orientada a Objetos**, principalmente **abstração, herança e polimorfismo**.
+
+A classe `Servico` é abstrata e implementa `Serializable`.
+
+Ela possui os atributos:
+
+```text
+id
+titulo
+categoria
+descricao
+valor
+```
+
+Também declara os métodos abstratos:
+
+```java
+getTipo()
+getDetalhesExtras()
+```
+
+As subclasses implementam esses métodos de acordo com sua modalidade:
+
+```text
+Servico
+├── ServicoDigital
+└── ServicoPresencial
+```
+
+### Serviço Digital
+
+Possui o atributo:
+
+```text
+plataforma
+```
+
+Exemplos:
+
+```text
+Zoom
+Discord
+Google Meet
+```
+
+### Serviço Presencial
+
+Possui o atributo:
+
+```text
+local
+```
+
+Exemplos:
+
+```text
+Biblioteca
+Bloco B
+Sala de aula
+```
+
+A `TableView` utiliza o polimorfismo diretamente. As colunas **Tipo** e **Info Extra** utilizam:
+
+```java
+PropertyValueFactory<>("tipo")
+PropertyValueFactory<>("detalhesExtras")
+```
+
+Assim, cada objeto retorna automaticamente as informações correspondentes à sua subclasse, sem necessidade de condicionais na tabela.
+
+---
+
+## 🔢 Controle de IDs
+
+O ID dos serviços é gerado através de um contador `static`.
+
+Como atributos `static` não são serializados, o método:
+
+```java
+Servico.sincronizarContador()
+```
+
+é executado após o carregamento do arquivo `.dat`.
+
+Ele identifica o maior ID existente e reposiciona o contador para o próximo valor disponível, evitando duplicação de IDs entre diferentes execuções da aplicação.
+
+---
+
+## 🔐 Autenticação
+
+A tela de login possui:
+
+* Cadastro de novos usuários;
+* Verificação de login duplicado;
+* Validação das credenciais;
+* Carregamento dos usuários através de `usuarios.dat`.
+
+A tela principal somente é construída após um login bem-sucedido, utilizando um `Runnable` como callback.
+
+---
+
+## 🛒 Gerenciamento de serviços
+
+O sistema permite:
+
+### ➕ Cadastro
+
+Ao cadastrar um serviço, o usuário pode definir:
+
+* Modalidade: Digital ou Presencial;
+* Título;
+* Categoria;
+* Descrição;
+* Informação adicional;
+* Valor.
+
+O campo adicional se adapta automaticamente conforme a modalidade selecionada.
+
+### 🏷️ Categorias
+
+O sistema oferece categorias pré-definidas:
+
+```text
+Monitoria
+Programação
+Design
+Idiomas
+Música
+```
+
+Também existe a opção **Outro**, que permite informar uma categoria personalizada.
+
+### 🔎 Busca
+
+A busca é realizada em tempo real utilizando `FilteredList`.
+
+É possível pesquisar por:
+
+* Título;
+* Categoria;
+* Descrição.
+
+### ✏️ Edição
+
+Os dados do serviço são carregados automaticamente no formulário para alteração.
+
+Caso a modalidade seja alterada, o objeto é substituído pela subclasse correspondente, mantendo o **ID original**.
+
+### 🗑️ Remoção
+
+A exclusão possui um diálogo de confirmação antes de remover o serviço.
+
+### ✅ Validação
+
+O sistema valida:
+
+* Campos obrigatórios;
+* Valor numérico;
+* Utilização de vírgula ou ponto no valor.
+
+---
+
+## 💾 Persistência
+
+O projeto não utiliza banco de dados.
+
+As informações são armazenadas através da **serialização binária do Java**, utilizando:
+
+```text
+servicos.dat
+usuarios.dat
+```
+
+Os arquivos são criados automaticamente na primeira execução.
+
+Os dados são salvos após:
+
+* Cadastro;
+* Edição;
+* Remoção;
+* Fechamento da aplicação.
+
+Caso os arquivos ainda não existam, o sistema inicia com listas vazias.
+
+---
+
+## ▶️ Como executar
+
+### Pré-requisitos
+
+É necessário possuir um **JDK compatível com a configuração do projeto**.
+
+Atualmente:
+
+```text
+Java 25
+```
+
+Não é necessário baixar o JavaFX SDK manualmente, pois o Maven resolve as dependências do OpenJFX.
+
+### ⚠️ Ajuste necessário
+
+Antes da primeira execução, verifique o `pom.xml`.
+
+O plugin `javafx-maven-plugin` originalmente aponta para a classe do arquétipo do IntelliJ.
+
+Substitua:
+
+```text
+com.example.marketfaesamain/com.example.marketfaesamain.HelloApplication
+```
+
 por:
 
-<mainClass>com.example.marketfaesamain/com.example.marketfaesamain.ServicoApp</mainClass>
-Rodando
-cd "Market Faesa Main"
-./mvnw clean javafx:run      # Linux / macOS
-mvnw.cmd clean javafx:run    # Windows
-Pelo IntelliJ IDEA
-Abra a pasta Market Faesa Main como projeto Maven.
-Execute ServicoApp.java. Não é preciso configurar --module-path manualmente — o module-info.java e as dependências do Maven cuidam disso.
-Limitações conhecidas
-Pontos abertos, documentados de propósito para orientar as próximas entregas:
+```text
+com.example.marketfaesamain/com.example.marketfaesamain.ServicoApp
+```
 
-Senhas em texto puro. Usuario guarda a senha como String e o objeto é serializado direto em usuarios.dat. Qualquer pessoa com acesso ao arquivo lê as credenciais. Correção mínima: hash com salt (BCrypt ou PBKDF2 do próprio JDK).
-Sem SGBD. A serialização binária quebra a compatibilidade dos arquivos .dat sempre que a estrutura das classes muda de forma incompatível, e não suporta acesso concorrente. Migrar para SQLite/PostgreSQL + JDBC é o próximo passo natural.
-Serviço não tem dono. Não existe vínculo entre Usuario e Servico — depois do login, todo mundo enxerga e edita tudo.
-Sem testes. JUnit está no pom.xml, mas nenhuma classe de teste foi escrita.
-Arquivos versionados indevidamente. target/ (com os .class compilados) e os .dat estão no repositório. Falta um .gitignore.
-Resíduo do arquétipo. hello-view.fxml não é carregado por nenhuma classe e pode ser removido; a UI é toda construída por código.
-Nome de pasta com espaços. Market Faesa Main complica scripts e comandos de terminal. Renomear para market-faesa evitaria aspas em todo comando.
-Java 25 no compilador. Trava o projeto num JDK muito recente. Se a ideia é rodar em várias máquinas do grupo, baixar para 17 ou 21 (LTS) reduz atrito.
-Autores
-Igor Hermann Salgado
-Enzo Ceglias Coutinho
-Isaque Novaes
-Arthur Nunes Berti Xavier
-Tiago Cleto de Azeredo
-Lucas de Souza Barboza
-Daniel Stieg Radaelle
-FAESA Centro Universitário — Análise e Desenvolvimento de Sistemas — 2026
+### Windows
+
+Dentro da pasta do projeto:
+
+```bash
+mvnw.cmd clean javafx:run
+```
+
+### Linux / macOS
+
+```bash
+./mvnw clean javafx:run
+```
+
+---
+
+## 💻 Executando pelo IntelliJ IDEA
+
+1. Abra a pasta **Market Faesa Main** no IntelliJ IDEA.
+2. Aguarde o carregamento das dependências do Maven.
+3. Localize `ServicoApp.java`.
+4. Execute a classe.
+
+Não é necessário configurar manualmente o `--module-path`, pois o `module-info.java` e as dependências do Maven cuidam da configuração dos módulos.
+
+---
+
+## ⚠️ Limitações conhecidas
+
+O projeto possui alguns pontos que podem ser melhorados em versões futuras.
+
+### Senhas em texto puro
+
+Atualmente, a senha é armazenada como `String` e o objeto `Usuario` é serializado diretamente no `usuarios.dat`.
+
+Isso significa que alguém com acesso ao arquivo pode recuperar as credenciais.
+
+Uma melhoria recomendada é utilizar **hash com salt**, por exemplo:
+
+* BCrypt;
+* PBKDF2 disponível no próprio JDK.
+
+### Sem banco de dados
+
+A aplicação utiliza serialização `.dat`.
+
+Essa abordagem apresenta limitações de compatibilidade quando a estrutura das classes é alterada e não é adequada para acesso concorrente.
+
+Uma evolução possível seria utilizar:
+
+```text
+SQLite
+PostgreSQL
+JDBC
+```
+
+### Serviços sem proprietário
+
+Atualmente não existe uma relação entre `Usuario` e `Servico`.
+
+Após realizar o login, os usuários podem visualizar e editar os serviços existentes.
+
+Uma melhoria futura seria associar cada serviço ao usuário responsável pela publicação.
+
+### Testes
+
+O JUnit 5.12.1 está configurado no projeto, porém ainda não existem classes de teste implementadas.
+
+### Arquivos versionados
+
+Os arquivos `target/` e `.dat` estão presentes no repositório.
+
+Uma melhoria recomendada é criar um `.gitignore` para evitar o versionamento de arquivos gerados durante a execução.
+
+### Arquivo não utilizado
+
+O arquivo:
+
+```text
+hello-view.fxml
+```
+
+é um resíduo do arquétipo do IntelliJ e não é utilizado pela aplicação.
+
+A interface atual é construída diretamente através de código JavaFX.
+
+### Nome da pasta
+
+A pasta principal atualmente possui espaços:
+
+```text
+Market Faesa Main
+```
+
+Uma alternativa seria utilizar:
+
+```text
+market-faesa
+```
+
+Isso facilita a utilização em scripts e comandos de terminal.
+
+### Java 25
+
+O projeto está configurado para Java 25, que é uma versão recente.
+
+Para facilitar a execução em diferentes computadores, uma futura versão poderia utilizar uma versão **LTS**, como Java 21.
+
+---
+
+## 👥 Autores
+
+**Igor Hermann Salgado**
+**Enzo Ceglias Coutinho**
+**Isaque Novaes**
+**Arthur Nunes Berti Xavier**
+**Tiago Cleto de Azeredo**
+**Lucas de Souza Barboza**
+**Daniel Stieg Radaelle**
+
+---
+
+## 🎓 Instituição
+
+**FAESA Centro Universitário**
+
+Curso de **Análise e Desenvolvimento de Sistemas — ADS**
+
+**2026**
+
+---
+
+⭐ Projeto desenvolvido para fins acadêmicos.
